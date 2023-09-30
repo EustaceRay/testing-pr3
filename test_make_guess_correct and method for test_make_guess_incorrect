@@ -1,0 +1,86 @@
+import random
+import tkinter as tk
+from tkinter import messagebox
+import unittest
+
+class WheelOfFortune:
+    def __init__(self, root):
+        self.root = root
+        self.word = ''
+        self.hidden_word = ''
+        self.guessed_letters = set()
+        self.remaining_attempts = 6
+
+        self.setup_gui()
+        self.new_game()
+
+    def new_game(self):
+        self.word = random.choice(['яблоко', 'банан', 'вишня', 'груша', 'ежевика'])
+        self.hidden_word = '_' * len(self.word)
+        self.guessed_letters.clear()
+        self.remaining_attempts = 6
+
+        self.update_word_label()
+        self.update_attempts_label()
+
+   def make_guess(self, letter=None):
+        if letter is None:
+            letter = self.letter_entry.get()
+            self.letter_entry.delete(0, tk.END)
+
+        if len(letter) != 1 or letter.lower() not in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя':
+            messagebox.showwarning('Неверная попытка', 'Пожалуйста, введите одну букву.')
+
+        elif letter in self.guessed_letters:
+            messagebox.showinfo('Информация', 'Вы уже угадали эту букву. Попробуйте другую.')
+
+        else:
+            self.remaining_attempts -= 1
+            self.guessed_letters.add(letter)
+
+            if self.remaining_attempts == 0:
+                messagebox.showinfo('Очень жаль', f'Вы проиграли. Загаданное слово было: {self.word}')
+                self.new_game()
+        
+
+
+class WheelOfFortuneTest(unittest.TestCase):
+
+    def test_new_game(self):
+        self.game.new_game()
+        self.assertEqual(len(self.game.word), len(self.game.hidden_word))
+        self.assertEqual(self.game.guessed_letters, set())
+        self.assertEqual(self.game.remaining_attempts, 6)
+
+    def test_make_guess_duplicate(self):
+        self.game.word = 'яблоко'
+        self.game.hidden_word = 'я__о_о'
+        self.game.guessed_letters = {'я', 'о'}
+        self.game.remaining_attempts = 3
+
+        self.game.make_guess(letter='я')
+        self.assertEqual(self.game.hidden_word, 'я__о_о')
+        self.assertEqual(self.game.guessed_letters, {'я', 'о'})
+        self.assertEqual(self.game.remaining_attempts, 3)
+
+    def test_make_guess_incorrect(self):
+        self.game.word = 'яблоко'
+        self.game.hidden_word = 'я__о_о'
+        self.game.guessed_letters = {'я', 'о'}
+        self.game.remaining_attempts = 3
+
+        self.game.make_guess(letter='з')
+        self.assertEqual(self.game.hidden_word, 'я__о_о')
+        self.assertEqual(self.game.guessed_letters, {'я', 'о', 'з'})
+        self.assertEqual(self.game.remaining_attempts, 2)
+
+    def test_make_guess_correct(self):
+        self.game.word = 'яблоко'
+        self.game.hidden_word = 'я__о_о'
+        self.game.guessed_letters = {'я', 'о'}
+        self.game.remaining_attempts = 3
+
+        self.game.make_guess(letter='б')
+        self.assertEqual(self.game.hidden_word, 'яб_о_о')
+        self.assertEqual(self.game.guessed_letters, {'я', 'о', 'б'})
+        self.assertEqual(self.game.remaining_attempts, 3)

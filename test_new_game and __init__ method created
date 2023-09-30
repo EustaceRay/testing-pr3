@@ -1,0 +1,23 @@
+import random
+import unittest
+import tkinter as tk
+from tkinter import messagebox
+
+
+class WheelOfFortune:
+    def __init__(self, root):
+        self.root = root
+        self.word = ''
+        self.hidden_word = ''
+        self.guessed_letters = set()
+        self.remaining_attempts = 6
+
+        self.setup_gui()
+        self.new_game()
+
+class WheelOfFortuneTest(unittest.TestCase):
+    def test_new_game(self):
+        self.game.new_game()
+        self.assertEqual(len(self.game.word), len(self.game.hidden_word))
+        self.assertEqual(self.game.guessed_letters, set())
+        self.assertEqual(self.game.remaining_attempts, 6)
